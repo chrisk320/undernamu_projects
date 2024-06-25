@@ -11,7 +11,6 @@ def get_product_info_by_criteria(name=None, min_price=None, max_price=None, cate
     common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
     try:
         version = common.version()
-        print(f"Connected to Odoo server version: {version['server_version']}")
     except Exception as e:
         return f"Failed to connect to the Odoo server: {e}"
 

@@ -17,7 +17,7 @@ def initialize_assistant(openai_client, tools: list, instructions: str) -> objec
         model="gpt-4o",
     )
 
-def add_message(openai_client, thread: object, user_input: str) -> object:
+def add_message(openai_client, thread: object, user_input: str):
     """
     Adds a message to the thread.
     
@@ -25,11 +25,8 @@ def add_message(openai_client, thread: object, user_input: str) -> object:
         openai_client: The OpenAI client instance.
         thread (object): The current thread object.
         user_input (str): The user's input message.
-    
-    Returns:
-        object: The created message object.
     """
-    return openai_client.beta.threads.messages.create(
+    openai_client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
         content=user_input
@@ -62,50 +59,3 @@ def print_message(openai_client, thread: object) -> None:
     """
     message = openai_client.beta.threads.messages.list(thread_id=thread.id)
     print("\n" + message.data[0].content[0].text.value + "\n")
-
-def handle_tool_call(openai_client, run: object, thread: object) -> object:
-    """
-    Handles tool calls by extracting arguments and executing the corresponding function.
-    
-    Args:
-        openai_client: The OpenAI client instance.
-        run (object): The current run object.
-        thread (object): The current thread object.
-    
-    Returns:
-        object: Updated run object after processing tool calls.
-    """
-    from tools import get_product_info_by_criteria
-    import ast
-
-    tool_outputs = []
-    
-    for tool in run.required_action.submit_tool_outputs.tool_calls:
-        if tool.function.name == "get_product_info_by_criteria":
-            argument_dictionary = ast.literal_eval(tool.function.arguments)
-            tool_outputs.append({
-                "tool_call_id": tool.id,
-                "output": get_product_info_by_criteria(
-                    argument_dictionary.get('product_name'),
-                    argument_dictionary.get('min_price'),
-                    argument_dictionary.get('max_price'),
-                    argument_dictionary.get('category'),
-                    argument_dictionary.get('reference'),
-                    argument_dictionary.get('in_stock')
-                )
-            })
-    
-    if tool_outputs:
-        try:
-            run = openai_client.beta.threads.runs.submit_tool_outputs_and_poll(
-                thread_id=thread.id,
-                run_id=run.id,
-                tool_outputs=tool_outputs
-            )
-            print("Tool outputs submitted successfully.")
-        except Exception as e:
-            print("Failed to submit tool outputs:", e)
-    else:
-        print("No tool outputs to submit.")
-    
-    return run
