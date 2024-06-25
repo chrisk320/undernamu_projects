@@ -75,20 +75,23 @@ def handle_tool_call(openai_client, run: object, thread: object) -> object:
     Returns:
         object: Updated run object after processing tool calls.
     """
-    from tools import search_openFDA_registrationlisting
+    from tools import get_product_info_by_criteria
     import ast
 
     tool_outputs = []
     
     for tool in run.required_action.submit_tool_outputs.tool_calls:
-        if tool.function.name == "search_openFDA_registrationlisting":
+        if tool.function.name == "get_product_info_by_criteria":
             argument_dictionary = ast.literal_eval(tool.function.arguments)
             tool_outputs.append({
                 "tool_call_id": tool.id,
-                "output": search_openFDA_registrationlisting(
-                    argument_dictionary.get('search_field'),
-                    argument_dictionary.get('search_term'),
-                    argument_dictionary.get('limit')
+                "output": get_product_info_by_criteria(
+                    argument_dictionary.get('product_name'),
+                    argument_dictionary.get('min_price'),
+                    argument_dictionary.get('max_price'),
+                    argument_dictionary.get('category'),
+                    argument_dictionary.get('reference'),
+                    argument_dictionary.get('in_stock')
                 )
             })
     
