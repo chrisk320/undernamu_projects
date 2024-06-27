@@ -1,4 +1,5 @@
 import requests
+import json
 
 API_KEY = "PHv7rqvg9a4Uu9o7Y1nd42FflWDHQYuocFRcvgit"
 
@@ -144,11 +145,10 @@ def search_openFDA_druglabel(search_field, search_term, limit):
             openFDA features harmonization on specific identifiers to make it easier to both search for and understand the drug products returned by API queries. These additional fields are attached to records in all categories.
             Limits of openFDA harmonization: Not all records have harmonized fields. Because the harmonization process requires an exact match, some drug products cannot be harmonized in this fashion - for instance, if the drug name is misspelled. Some drug products will have openfda sections, while others will never, if there was no match during the harmonization process. Conversely, searching in these fields will only return a subset of records from a given endpoint.
             Exaustive list of harmonized fields for the data label endpoint:
-                manufacturer_name
-                unii
-                Product Type
-                spl_set_id
-                route
+            OpenFDA fields	manufacturer_name	array of strings	Name of manufacturer or company that makes this drug product, corresponding to the labeler code segment of the NDC.
+            OpenFDA fields	unii	array of strings	Unique Ingredient Identifier, which is a non-proprietary, free, unique, unambiguous, non-semantic, alphanumeric identifier based on a substance's molecular structure and/or descriptive information.  Values follow this pattern: ^[A-Z0-9]{10}$
+            OpenFDA fields	product_type	array of strings	
+            OpenFDA fields	spl_set_id	array of strings	Unique identifier for the Structured Product Label for a product, which is stable across versions of the label. Also referred to as the set ID.  Values follow this pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
                 generic_name
                 brand_name
                 product_ndc
@@ -196,12 +196,16 @@ def search_openFDA_druglabel(search_field, search_term, limit):
             ID and version	id	string	The document ID, A globally unique identifier (GUID) for the particular revision of a labeling document.
             ID and version	set_id	string	The Set ID, A globally unique identifier (GUID) for the labeling, stable across all versions or revisions.
             ID and version	version	string	A sequentially increasing number identifying the particular version of a document, starting with 1.
-            Indications, usage, and dosage	active_ingredient	string	A list of the active, medicinal ingredients in the drug product.
-            Indications, usage, and dosage	active_ingredient_table	string	A list of the active, medicinal ingredients in the drug product.
-            Indications, usage, and dosage	contraindications	string	Information about situations in which the drug product is contraindicated or should not be used because the risk of use clearly outweighs any possible benefit, including the type and nature of reactions that have been reported.
+            
+           ! Indications, usage, and dosage	active_ingredient	string	A list of the active, medicinal ingredients in the drug product.
+           ! Indications, usage, and dosage	active_ingredient_table	string	A list of the active, medicinal ingredients in the drug product.
+           
+             Indications, usage, and dosage	contraindications	string	Information about situations in which the drug product is contraindicated or should not be used because the risk of use clearly outweighs any possible benefit, including the type and nature of reactions that have been reported.
             Indications, usage, and dosage	contraindications_table	string	Information about situations in which the drug product is contraindicated or should not be used because the risk of use clearly outweighs any possible benefit, including the type and nature of reactions that have been reported.
             Indications, usage, and dosage	description	string	General information about the drug product, including the proprietary and established name of the drug, the type of dosage form and route of administration to which the label applies, qualitative and quantitative ingredient information, the pharmacologic or therapeutic class of the drug, and the chemical name and structural formula of the drug.
-            Indications, usage, and dosage	description_table	string	General information about the drug product, including the proprietary and established name of the drug, the type of dosage form and route of administration to which the label applies, qualitative and quantitative ingredient information, the pharmacologic or therapeutic class of the drug, and the chemical name and structural formula of the drug.
+            
+            ! Indications, usage, and dosage	description_table	string	General information about the drug product, including the proprietary and established name of the drug, the type of dosage form and route of administration to which the label applies, qualitative and quantitative ingredient information, the pharmacologic or therapeutic class of the drug, and the chemical name and structural formula of the drug.
+            
             Indications, usage, and dosage	dosage_and_administration	string	Information about the drug product's dosage and administration recommendations, including starting dose, dose range, titration regimens, and any other clinically sigificant information that affects dosing recommendations.
             Indications, usage, and dosage	dosage_and_administration_table	string	Information about the drug product's dosage and administration recommendations, including starting dose, dose range, titration regimens, and any other clinically sigificant information that affects dosing recommendations.
             Indications, usage, and dosage	dosage_forms_and_strengths	string	Information about all available dosage forms and strengths for the drug product to which the labeling applies. This field may contain descriptions of product appearance.
@@ -221,17 +225,17 @@ def search_openFDA_druglabel(search_field, search_term, limit):
             Nonclinical toxicology	nonclinical_toxicology	string	Information about toxicology in non-human subjects.
             Nonclinical toxicology	nonclinical_toxicology_table	string	Information about toxicology in non-human subjects.
             OpenFDA fields	application_number	array of strings	This corresponds to the NDA, ANDA, or BLA number reported by the labeler for products which have the corresponding Marketing Category designated. If the designated Marketing Category is OTC Monograph Final or OTC Monograph Not Final, then the application number will be the CFR citation corresponding to the appropriate Monograph (e.g. "part 341"). For unapproved drugs, this field will be null.  Values follow this pattern: ^[BLA|ANDA|NDA]{3,4}[0-9]{6}$
-            OpenFDA fields	brand_name	array of strings	Brand or trade name of the drug product.
-            OpenFDA fields	generic_name	array of strings	Generic name(s) of the drug product.
-            OpenFDA fields	manufacturer_name	array of strings	Name of manufacturer or company that makes this drug product, corresponding to the labeler code segment of the NDC.
-            OpenFDA fields	nui	array of strings	Unique identifier applied to a drug concept within the National Drug File Reference Terminology (NDF-RT).  Values follow this pattern: ^[N][0-9]{10}$
+            ! OpenFDA fields	brand_name	array of strings	Brand or trade name of the drug product.
+           !  OpenFDA fields	generic_name	array of strings	Generic name(s) of the drug product.
+           !  OpenFDA fields	manufacturer_name	array of strings	Name of manufacturer or company that makes this drug product, corresponding to the labeler code segment of the NDC.
+           !  OpenFDA fields	nui	array of strings	Unique identifier applied to a drug concept within the National Drug File Reference Terminology (NDF-RT).  Values follow this pattern: ^[N][0-9]{10}$
             OpenFDA fields	package_ndc	array of strings	This number, known as the NDC, identifies the labeler, product, and trade package size. The first segment, the labeler code, is assigned by the FDA. A labeler is any firm that manufactures (including repackers or relabelers), or distributes (under its own name) the drug.  Values follow this pattern: ^[0-9]{5,4}-[0-9]{4,3}-[0-9]{1,2}$
             OpenFDA fields	pharm_class_cs	array of strings	Chemical structure classification of the drug product's pharmacologic class. Takes the form of the classification, followed by [Chemical/Ingredient] (such as Thiazides [Chemical/Ingredient] or `Antibodies, Monoclonal [Chemical/Ingredient].
             OpenFDA fields	pharm_class_epc	array of strings	Established pharmacologic class associated with an approved indication of an active moiety (generic drug) that the FDA has determined to be scientifically valid and clinically meaningful. Takes the form of the pharmacologic class, followed by [EPC] (such as Thiazide Diuretic [EPC] or Tumor Necrosis Factor Blocker [EPC].
             OpenFDA fields	pharm_class_moa	array of strings	Mechanism of action of the drug-molecular, subcellular, or cellular functional activity-of the drug's established pharmacologic class. Takes the form of the mechanism of action, followed by [MoA] (such as Calcium Channel Antagonists [MoA] or Tumor Necrosis Factor Receptor Blocking Activity [MoA].
             OpenFDA fields	pharm_class_pe	array of strings	Physiologic effect or pharmacodynamic effect-tissue, organ, or organ system level functional activity-of the drug's established pharmacologic class. Takes the form of the effect, followed by [PE] (such as Increased Diuresis [PE] or Decreased Cytokine Activity [PE].
             OpenFDA fields	product_ndc	array of strings	The labeler manufacturer code and product code segments of the NDC number, separated by a hyphen.  Values follow this pattern: ^[0-9]{5,4}-[0-9]{4,3}$
-            OpenFDA fields	product_type	array of strings	
+           !  OpenFDA fields	product_type	array of strings	
             OpenFDA fields	route	array of strings	The route of administation of the drug product.
             OpenFDA fields	rxcui	array of strings	The RxNorm Concept Unique Identifier. RxCUI is a unique number that describes a semantic concept about the drug product, including its ingredients, strength, and dose forms.  Values follow this pattern: ^[0-9]{6}$
             OpenFDA fields	spl_id	array of strings	Unique identifier for a particular version of a Structured Product Label for a product. Also referred to as the document ID.  Values follow this pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
@@ -458,11 +462,55 @@ def search_openFDA_druglabel(search_field, search_term, limit):
         print(url)
         return None
 
+def search_openFDA_druglabel2(search_field, search_term, limit):
+    '''
+    (openfda.brand_name, Brand or trade name of the drug product.)
+    (openfda.generic_name, Generic name(s) of the drug product.)
+    (openfda.manufacturer_name, Name of manufacturer or company that makes this drug product, corresponding to the labeler code segment of the NDC.)
+      
+    '''
+    OPENFDA_API_KEY = "PHv7rqvg9a4Uu9o7Y1nd42FflWDHQYuocFRcvgit"
+    url = f"https://api.fda.gov/drug/label.json?api_key={OPENFDA_API_KEY}&search={search_field}:{search_term}&limit={limit}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        return json.dumps(response.json(), indent=4)
+    except requests.exceptions.RequestException as e:
+        return f"Error: Unable to fetch data (status code: {response.status_code}) - {e}"
+
+def search_openFDA_registrationlisting2(search_field: str, search_term: str, limit: int) -> str:
+    """
+    Searches the openFDA registration listing endpoint with the given parameters.
+    
+    Args:
+        search_field (str): The field to search within.
+        search_term (str): The term to search for.
+        limit (int): The maximum number of records to return.
+
+        (products.openfda.device_name, This is the proprietary name, or trade name, of the cleared device.)
+        (proprietary_name, Proprietary or brand name or model number a product is marketed under.)
+        (products.openfda.regulation_number, The classification regulation in the Code of Federal Regulations (CFR) under which the device is identified, described, and formally classified. Covers various aspects of design, clinical evaluation, manufacturing, packaging, labeling, and postmarket surveillance of the specific medical device.)
+                
+
+    Returns:
+        str: A JSON string of the search results if successful, an error message otherwise.
+    """
+    OPENFDA_API_KEY = "PHv7rqvg9a4Uu9o7Y1nd42FflWDHQYuocFRcvgit"
+    url = f"https://api.fda.gov/device/registrationlisting.json?api_key={OPENFDA_API_KEY}&search={search_field}:{search_term}&limit={limit}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        return json.dumps(response.json(), indent=4)
+    except requests.exceptions.RequestException as e:
+        return f"Error: Unable to fetch data (status code: {response.status_code}) - {e}"
+
+
 def main():
-    search_field = "products.product_code"
-    search_term = "HQY"
+    search_field = "openfda.unii"
+    search_term = "0"
     limit = 1
-    data = search_openFDA_registrationlisting(search_field, search_term, limit)
+    data = search_openFDA_druglabel2(search_field, search_term, limit)
     if data:
         print(data)
     else:
