@@ -1,16 +1,23 @@
 import os
 import json
+import logging
+import requests
+from openai import OpenAI
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from openai import OpenAI
 from openai_helper import initialize_assistant, add_message, create_run, print_message, get_function_description, handle_tool_calls
 from tools import FUNCTION_MAP
 
-# Retrieve credentials from environment variables
+# Initialize logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Get LINE Channel Access Token and Secret from environment variables
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
 LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
 
+# Initialize LineBotApi and WebhookHandler
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
@@ -37,58 +44,48 @@ thread = openai_client.beta.threads.create()
 # Send initial message
 add_message(openai_client, thread, INITIAL_PROMPT)
 run = create_run(openai_client, thread, assistant)
-
-# Handle initial tool calls if required
 while run.status == 'requires_action':
     run = handle_tool_calls(openai_client, run, thread, FUNCTION_MAP)
+if run.status == 'completed':
+    print_message(openai_client, thread)
 
+# Lambda function handler
 def lambda_handler(event, context):
-    body = json.loads(event['body'])
-    signature = event['headers'].get('x-line-signature', '')
+    logger.info("Event: " + json.dumps(event))
+    
+    signature = event['headers']['x-line-signature']
 
-    # Validate the signature
+    # Get request body
+    body = event['body']
+
+    # Handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
+        logger.error("Invalid signature. Check your channel access token/channel secret.")
         return {
             'statusCode': 403,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST,OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
-            },
             'body': json.dumps('Invalid signature')
         }
 
     return {
         'statusCode': 200,
-        'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST,OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization'
-        },
-        'body': json.dumps('OK')
+        'body': json.dumps('Success')
     }
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    user_message = event.message.text
-
-    # Send the user message to the OpenAI assistant
-    add_message(openai_client, thread, user_message)
+    user_input = event.message.text
+    add_message(openai_client, thread, user_input)
     run = create_run(openai_client, thread, assistant)
-
-    # Handle tool calls if required
     while run.status == 'requires_action':
         run = handle_tool_calls(openai_client, run, thread, FUNCTION_MAP)
-
-    # Get the response message
     if run.status == 'completed':
-        response_message = print_message(openai_client, thread)
+        reply_text = print_message(openai_client, thread)
     else:
-        response_message = "I'm sorry, I couldn't process your request."
+        reply_text = "Sorry, something went wrong."
 
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=response_message)
+        TextSendMessage(text=reply_text)
     )
