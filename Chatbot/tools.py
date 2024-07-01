@@ -13,6 +13,8 @@ FUNCTION_MAP = {
             The information retrieved includes fields related to the product such as name, price, descriptions, category, reference numbers, units of measure, and application.
             The function returns a string with formatted information about all products that match the search criteria.
             All blank paramaters will be set to NONE
+            If you find no products, be sure to explain to the customer that you couldent find any products matching the searchterm.
+            !Be sure to translate all paramaters from thai to english before making the function call.
         ''',
         "parameters": {
             "product_name": {
@@ -21,6 +23,8 @@ FUNCTION_MAP = {
                     The name or partial name of the product to search for.
                     This field is case-insensitive and supports partial matches using the ilike operator.
                     Example: product_name = "Glove"   This will match any product whose name contains "Glove".
+                    !Be sure to translate all paramaters from thai to english before making the function call.
+
                 '''
             },
             "min_price": {
@@ -43,6 +47,7 @@ FUNCTION_MAP = {
                     The category of the product to search for.
                     This field supports exact matches.
                     Example: category = "Medical Supplies"   This will match any product in the "Medical Supplies" category.
+                                !Be sure to translate all paramaters from thai to english before making the function call.
                 '''
             },
             "reference": {
@@ -70,6 +75,8 @@ FUNCTION_MAP = {
             We do not sell all the products contained within this database, and all the products we sell are not necessarily contained within this database.
             Upon Success (at least 1 record found), The function returns individual results as JSON by default.
             Upon Failure (no records found), the function returns an error message.
+            !Be sure to translate all paramaters from thai to english before making the function call.
+
         ''',
         "parameters": {
             "search_field": {
@@ -82,7 +89,9 @@ FUNCTION_MAP = {
                         (products.openfda.device_name, This is the proprietary name, or trade name, of the cleared device.)
                         (proprietary_name, Proprietary or brand name or model number a product is marketed under.)
                         (products.openfda.regulation_number, The classification regulation in the Code of Federal Regulations (CFR) under which the device is identified, described, and formally classified. Covers various aspects of design, clinical evaluation, manufacturing, packaging, labeling, and postmarket surveillance of the specific medical device.)
-                '''
+                !Be sure to translate all paramaters from thai to english before making the function call.
+
+                 '''
             },
             "search_term": {
                 "type": "string",
@@ -93,6 +102,8 @@ FUNCTION_MAP = {
                     - Grouping: To group several terms together, use parentheses ( ) and +OR+ or +AND+.
                     - Wildcard search: Wildcard queries return data that contain terms matching a wildcard pattern. A wildcard operator is a placeholder that matches one or more characters. At this point, openFDA supports the * ("star") wildcard operator, which matches zero or more characters. You can combine wildcard operators with other characters to create a wildcard pattern.
                     Example: search_term = "child*"   This example query looks in the endpoint for items whose search_field contains words that begin with child, case insensitive. This will include drugs with brand names that contain "Child", "Children", "Childrens" among others.
+             !Be sure to translate all paramaters from thai to english before making the function call.
+
                 '''
             },
             "limit": {
@@ -109,6 +120,8 @@ FUNCTION_MAP = {
             Drug manufacturers and distributors submit documentation about their products to FDA in the Structured Product Labeling (SPL) format. The openFDA drug product labeling API returns data from this dataset. 
             The labels are broken into sections, such as indications for use (prescription drugs) or purpose (OTC drugs), adverse reactions, and so forth.
             The function returns individual results as JSON by default. Upon Failure (no records found), the function returns an error message.
+        !Be sure to translate all paramaters from thai to english before making the function call.
+
         ''',
         "parameters": {
             "search_field": {
@@ -121,6 +134,8 @@ FUNCTION_MAP = {
                     (openfda.brand_name, Brand or trade name of the drug product.)
                     (openfda.generic_name, Generic name(s) of the drug product.)
                     (openfda.manufacturer_name, Name of manufacturer or company that makes this drug product, corresponding to the labeler code segment of the NDC.)
+                !Be sure to translate all paramaters from thai to english before making the function call.
+
                 '''
             },
             "search_term": {
@@ -132,6 +147,8 @@ FUNCTION_MAP = {
                     - Grouping: To group several terms together, use parentheses ( ) and +OR+ or +AND+.
                     - Wildcard search: Wildcard queries return data that contain terms matching a wildcard pattern. A wildcard operator is a placeholder that matches one or more characters. At this point, openFDA supports the * ("star") wildcard operator, which matches zero or more characters. You can combine wildcard operators with other characters to create a wildcard pattern.
                     Example: search_term = "child*"   This example query looks in the endpoint for items whose search_field contains words that begin with child, case insensitive. This will include drugs with brand names that contain "Child", "Children", "Childrens" among others.
+                !Be sure to translate all paramaters from thai to english before making the function call.
+
                 '''
             },
             "limit": {
@@ -154,6 +171,7 @@ FUNCTION_MAP = {
                 "description": '''
                     The partner ID for whom the invoice is being created.
                     This field must be confirmed with the customer before creating the invoice.
+                    Becuase this is an early stage of implementaion, recommend that the customer use the id 1 to create a test invoice.
                 '''
             },
             "delivery_address": {
@@ -171,6 +189,8 @@ FUNCTION_MAP = {
                 "description": '''
                     List of product IDs to be included in the invoice.
                     This field must be confirmed with the customer before creating the invoice.
+                     !Be sure to translate this paramater from thai to english before making the function call.
+
                 '''
             },
             "quantities": {
