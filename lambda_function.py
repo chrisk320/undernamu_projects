@@ -1,12 +1,13 @@
-import json
 import os
+import json
 from linebot import LineBotApi, WebhookHandler
+from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from openai import OpenAI
 from openai_helper import initialize_assistant, add_message, create_run, print_message, get_function_description, handle_tool_calls
 from tools import FUNCTION_MAP
 
-# LINE Bot credentials from environment variables
+# Retrieve credentials from environment variables
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
 LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
 
@@ -44,7 +45,16 @@ while run.status == 'requires_action':
 def lambda_handler(event, context):
     body = json.loads(event['body'])
     signature = event['headers']['x-line-signature']
-    handler.handle(body, signature)
+
+    # Validate the signature
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        return {
+            'statusCode': 403,
+            'body': json.dumps('Invalid signature')
+        }
+
     return {
         'statusCode': 200,
         'body': json.dumps('OK')
