@@ -44,7 +44,7 @@ while run.status == 'requires_action':
 
 def lambda_handler(event, context):
     body = json.loads(event['body'])
-    signature = event['headers']['x-line-signature']
+    signature = event['headers'].get('x-line-signature', '')
 
     # Validate the signature
     try:
@@ -52,11 +52,21 @@ def lambda_handler(event, context):
     except InvalidSignatureError:
         return {
             'statusCode': 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST,OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             'body': json.dumps('Invalid signature')
         }
 
     return {
         'statusCode': 200,
+        'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+        },
         'body': json.dumps('OK')
     }
 
